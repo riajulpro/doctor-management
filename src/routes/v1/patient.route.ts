@@ -7,21 +7,22 @@ import {
   getPatientById,
   updatePatientById,
 } from "../../controllers/patient.controller";
+import { authenticateToken } from "../../middlewares/authenticateToken";
 const router = express.Router();
 
 // Create a new patient
 router.post("/patients", createNewPatient);
 
 // Get all patients
-router.get("/patients", getAllPatients);
+router.get("/patients", authenticateToken, getAllPatients);
 
 // Get a patient by ID
-router.get("/patients/:id", getPatientById);
+router.get("/patients/:id", authenticateToken, getPatientById);
 
 // Update a patient by ID
-router.patch("/patients/:id", updatePatientById);
+router.patch("/patients/:id", authenticateToken, updatePatientById);
 
 // Delete a patient by ID
-router.delete("/patients/:id", deletePatientById);
+router.delete("/patients/:id", authenticateToken, deletePatientById);
 
 export default router;

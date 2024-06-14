@@ -38,10 +38,11 @@ export const loginAsPatient = async (req: Request, res: Response) => {
     res.cookie("access_token", token, {
       httpOnly: true, // Makes the cookie inaccessible to client-side JavaScript
       secure: process.env.NODE_ENV === "production", // Ensures the cookie is sent only over HTTPS
-      maxAge: 3600000, // 1 hour in milliseconds
+      maxAge: 10000, // 7 days in milliseconds
     });
 
     res.status(200).json({
+      success: true,
       message: `You successfully logged in!`,
       access_token: token,
     });
