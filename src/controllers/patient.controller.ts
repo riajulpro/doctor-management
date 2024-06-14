@@ -1,19 +1,27 @@
 import { Request, Response } from "express";
 import Patient from "../models/patient.model";
+import bcrypt from "bcrypt";
 
 export const createNewPatient = async (req: Request, res: Response) => {
   try {
-    const { phone } = req.body;
+    const { email, password } = req.body;
 
-    const existingPatient = await Patient.findOne({ phone });
+    const existingPatient = await Patient.findOne({ email });
     if (existingPatient) {
       return res
         .status(400)
-        .json({ message: "Patient with this phone number already exists" });
+        .json({ message: "Patient with this email already exists!" });
     }
+    // make the password hash
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const { password: string, ...withoutPassword } = req.body;
 
-    const newPatient = new Patient(req.body);
+    const newPatient = new Patient({
+      ...withoutPassword,
+      password: hashedPassword,
+    });
     const savedPatient = await newPatient.save();
+
     res.status(201).json({
       success: true,
       message: "Patient successfully created!",

@@ -14,6 +14,10 @@ const BillingSchema = new mongoose.Schema({
     type: Date,
     required: false,
   },
+  service: {
+    type: String,
+    required: true,
+  },
   payment_status: {
     type: String,
     enum: ["paid", "unpaid"],

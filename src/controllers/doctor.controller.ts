@@ -1,9 +1,10 @@
 import { Request, Response } from "express";
 import Doctor from "../models/doctor.model";
+import bcrypt from "bcrypt";
 
 export const createNewDoctor = async (req: Request, res: Response) => {
   try {
-    const { email, phone } = req.body;
+    const { email, phone, password } = req.body;
 
     const existingDoctor = await Doctor.findOne({
       $or: [{ email }, { phone }],
@@ -14,7 +15,14 @@ export const createNewDoctor = async (req: Request, res: Response) => {
       });
     }
 
-    const newDoctor = new Doctor(req.body);
+    // make the password hash
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const { password: string, ...withoutPassword } = req.body;
+
+    const newDoctor = new Doctor({
+      ...withoutPassword,
+      password: hashedPassword,
+    });
     const savedDoctor = await newDoctor.save();
     res.status(201).json({
       success: true,
