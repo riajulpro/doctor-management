@@ -5,6 +5,7 @@ import doctorApi from "./doctor.route";
 import appoinmentApi from "./appointment.route";
 import billingApi from "./billing.route";
 import authApi from "./auth.route";
+import apointReqApi from "./appointmentRequest.route";
 
 const routerPath = [
   {
@@ -26,6 +27,10 @@ const routerPath = [
   {
     path: "/auth",
     router: authApi,
+  },
+  {
+    path: "/appointment-request",
+    router: apointReqApi,
   },
 ];
 
