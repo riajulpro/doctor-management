@@ -34,6 +34,9 @@ const PatientSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  refreshToken: {
+    type: String,
+  },
 });
 
 const Patient = mongoose.model("Patient", PatientSchema);

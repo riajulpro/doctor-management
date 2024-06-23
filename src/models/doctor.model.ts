@@ -30,6 +30,9 @@ const DoctorSchema = new mongoose.Schema({
     type: [String],
     required: true,
   },
+  refreshToken: {
+    type: String,
+  },
 });
 
 const Doctor = mongoose.model("Doctor", DoctorSchema);

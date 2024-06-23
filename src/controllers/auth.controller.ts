@@ -4,6 +4,9 @@ import bcrypt from "bcrypt";
 import { generateAccessToken } from "../utils/generateAccessToken";
 import Doctor from "../models/doctor.model";
 
+const accessSecret = process.env.ACCESS_TOKEN_SECRET;
+const refreshSecret = process.env.REFRESH_TOKEN_SECRET;
+
 export const loginAsPatient = async (req: Request, res: Response) => {
   const { email, password } = req.body;
   if (!email || !password) {
@@ -33,19 +36,30 @@ export const loginAsPatient = async (req: Request, res: Response) => {
       });
     }
 
-    const token = generateAccessToken(isUserExist.email);
+    const accessToken = generateAccessToken(
+      isUserExist.email,
+      accessSecret as string,
+      {
+        expiresIn: "15m",
+      }
+    );
+    const refreshToken = generateAccessToken(
+      isUserExist.email,
+      refreshSecret as string
+    );
 
     // Set token in cookies
-    res.cookie("access_token", token, {
-      httpOnly: true, // Makes the cookie inaccessible to client-side JavaScript
-      secure: process.env.NODE_ENV === "production", // Ensures the cookie is sent only over HTTPS
-      maxAge: 7 * 24 * 3600 * 1000, // 7 days in milliseconds
-    });
+    // res.cookie("access_token", token, {
+    //   httpOnly: true, // Makes the cookie inaccessible to client-side JavaScript
+    //   secure: process.env.NODE_ENV === "production", // Ensures the cookie is sent only over HTTPS
+    //   maxAge: 7 * 24 * 3600 * 1000, // 7 days in milliseconds
+    // });
 
     res.status(200).json({
       success: true,
       message: `You successfully logged in!`,
-      access_token: token,
+      accessToken,
+      refreshToken,
     });
   } catch (error: any) {
     res.status(500).json({
@@ -82,19 +96,38 @@ export const loginAsDoctor = async (req: Request, res: Response) => {
       });
     }
 
-    const token = generateAccessToken(isUserExist.email);
+    const accessToken = generateAccessToken(
+      isUserExist.email,
+      accessSecret as string,
+      {
+        expiresIn: "15m",
+      }
+    );
+    const refreshToken = generateAccessToken(
+      isUserExist.email,
+      refreshSecret as string
+    );
+
+    isUserExist.refreshToken = refreshToken;
+    await isUserExist.save();
 
     // Set token in cookies
-    res.cookie("access_token", token, {
+    res.cookie("accessToken", accessToken, {
       httpOnly: true, // Makes the cookie inaccessible to client-side JavaScript
       secure: process.env.NODE_ENV === "production", // Ensures the cookie is sent only over HTTPS
-      maxAge: 7 * 24 * 3600 * 1000, // 7 days in milliseconds
+      maxAge: 10 * 60 * 1000, // 10 minutes in milliseconds
+    });
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true, // Makes the cookie inaccessible to client-side JavaScript
+      secure: process.env.NODE_ENV === "production", // Ensures the cookie is sent only over HTTPS
+      maxAge: 30 * 24 * 3600 * 1000, // 30 days in milliseconds
     });
 
     res.status(200).json({
       success: true,
       message: `You successfully logged in!`,
-      access_token: token,
+      accessToken,
+      refreshToken,
     });
   } catch (error: any) {
     res.status(500).json({
